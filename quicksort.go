@@ -29,4 +29,21 @@ func quicksort(numeros []int) []int {
 	copy(n, numeros)
 	indicePivo := len(n) / 2
 	pivo := n[indicePivo]
+	n = append(n[:indicePivo], n[indicePivo+1:]...)
+	menores, maiores := particionar(n, pivo)
+	return append(
+		append(quicksort(menores), pivo),
+		quicksort(maiores)...)
+}
+
+func particionar(
+	numeros []int, pivo int) (menores []int, maiores []int) {
+	for _, n := range numeros {
+		if n <= pivo {
+			menores = append(menores, n)
+		} else {
+			maiores = append(maiores, n)
+		}
+	}
+	return menores, maiores
 }

@@ -18,7 +18,7 @@ func main() {
 			break
 		}
 	}
-	fmt.Println("Saída após %d iterações.\n", n)
+	fmt.Println("Saída após %i iterações.\n", n)
 
 	var i int
 externo:

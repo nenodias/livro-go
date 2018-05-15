@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"fmt"
+	"time"
 )
 
 type Operacao interface {
@@ -30,6 +31,28 @@ func (s Subtracao) String() string {
 	return fmt.Sprintf("%d - %d", s.operando1, s.operando2)
 }
 
+func Acumular(operacoes []Operacao) int {
+	acumulador := 0
+	for _, op := range operacoes {
+		valor := op.Calcular()
+		fmt.Printf("%v = %d\n", op, valor)
+		acumulador += valor
+	}
+	return acumulador
+}
+
+type Idade struct {
+	anoNascimento int
+}
+
+func (i Idade) Calcular() int {
+	return time.Now().Year() - i.anoNascimento
+}
+
+func (i Idade) String() string {
+	return fmt.Sprintf("Idade desde %d", i.anoNascimento)
+}
+
 func Exemplo() {
 	fmt.Printf("\n\n")
 	var soma Operacao
@@ -42,12 +65,13 @@ func Exemplo() {
 	operacoes[2] = Subtracao{10, 50}
 	operacoes[3] = Soma{5, 2}
 
-	acumulador := 0
-	for _, op := range operacoes {
-		valor := op.Calcular()
-		fmt.Printf("%v = %d\n", op, valor)
-		acumulador += valor
-	}
-	fmt.Printf("Valor acumulado = %d", acumulador)
+	acumulador := Acumular(operacoes)
+	fmt.Printf("Valor acumulado = %d\n", acumulador)
 
+	idades := make([]Operacao, 3)
+	idades[0] = Idade{1969}
+	idades[1] = Idade{1977}
+	idades[2] = Idade{2001}
+
+	fmt.Printf("Idades acumuladas = %d\n", Acumular(idades))
 }

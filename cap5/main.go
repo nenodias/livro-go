@@ -6,6 +6,7 @@ import (
 	ex "./listaGenerica"
 	ex1 "./structie"
 	"github.com/nenodias/livro-go/cap5/interfaces"
+	"github.com/nenodias/livro-go/cap5/ioreader"
 )
 
 type ListaDeCompras []string
@@ -61,4 +62,5 @@ func main() {
 
 	ex1.Exemplo()
 	interfaces.Exemplo()
+	ioreader.Exemplo()
 }

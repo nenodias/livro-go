@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	ex "./listaGenerica"
+	ex1 "./structie"
+	"github.com/nenodias/livro-go/cap5/interfaces"
 )
 
 type ListaDeCompras []string
@@ -56,4 +58,7 @@ func main() {
 	fmt.Printf("Removendo do indice 3: %v, após a remoção:\n%v\n", l.RemoverIndice(3), l)
 	fmt.Printf("Removendo do indice 0: %v, após a remoção:\n%v\n", l.RemoverIndice(0), l)
 	fmt.Printf("Removendo do último indice: %v, após a remoção:\n%v\n", l.RemoverIndice(len(l)-1), l)
+
+	ex1.Exemplo()
+	interfaces.Exemplo()
 }

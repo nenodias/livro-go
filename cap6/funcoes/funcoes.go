@@ -51,10 +51,37 @@ func CronometrarFuncao(funcao func()) {
 	fmt.Printf("\nTempo de execução: %s\n\n", time.Since(inicio))
 }
 
+type Agregadora func(n, m int) int
+
+func CalculaSoma(valores []int) int {
+	soma := func(n, m int) int {
+		return n + m
+	}
+	return Agregar(valores, 0, soma)
+}
+
+func CalculaProduto(valores []int) int {
+	soma := func(n, m int) int {
+		return n * m
+	}
+	return Agregar(valores, 1, soma)
+}
+
+func Agregar(valores []int, valorInicial int, fn Agregadora) int {
+	agregado := valorInicial
+	for _, v := range valores {
+		agregado = fn(v, agregado)
+	}
+	return agregado
+}
+
 func Exemplos() {
 	ExemploRegexp()
 	ExemploRegexpFn()
 	CronometrarFuncao(GerarFibonacci(8))
 	CronometrarFuncao(GerarFibonacci(48))
 	CronometrarFuncao(GerarFibonacci(88))
+	valores := []int{3, -2, 5, 7, 8, 22, 32, -1}
+	fmt.Println(CalculaSoma(valores))
+	fmt.Println(CalculaProduto(valores))
 }

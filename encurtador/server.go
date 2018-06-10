@@ -29,6 +29,10 @@ func (red *Redirecionador) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type Headers map[string]string
 
+func logar(formato string, valores ...interface{}) {
+	log.Printf(fmt.Sprintf("%s\n", formato), valores...)
+}
+
 func init() {
 	porta = 8888
 	urlBase = fmt.Sprintf("http://localhost:%d", porta)
@@ -41,7 +45,7 @@ func main() {
 	http.HandleFunc("/api/encurtador/", Encurtador)
 	http.HandleFunc("/api/stats/", Visualizador)
 	http.Handle("/r/", &Redirecionador{stats})
-
+	logar("Iniciando servidor na porta %d...", porta)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", porta), nil))
 }
 
@@ -96,6 +100,10 @@ func Encurtador(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlCurta := fmt.Sprintf("%s/r/%s", urlBase, url.Id)
+	logar("URL %s encurtada com sucesso para %s.",
+		url.Destino,
+		urlCurta,
+	)
 	responderCom(w, status, Headers{
 		"Location": urlCurta,
 		"Link":     fmt.Sprintf("<%s/api/stats/%s>; rel=\"stats\"", urlBase, url.Id),
@@ -118,6 +126,6 @@ func Visualizador(w http.ResponseWriter, r *http.Request) {
 func registrarEstatisticas(ids <-chan string) {
 	for id := range ids {
 		url.RegistrarClick(id)
-		fmt.Printf("Click registrado com sucesso para %s.\n", id)
+		logar("Click registrado com sucesso para %s.\n", id)
 	}
 }

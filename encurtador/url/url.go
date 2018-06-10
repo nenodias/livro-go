@@ -11,6 +11,8 @@ type Repositorio interface {
 	BuscarPorId(id string) *Url
 	BuscarPorUrl(url string) *Url
 	Salvar(url Url) error
+	RegistrarClick(id string)
+	BuscarClicks(id string) int
 }
 
 func init() {
@@ -28,14 +30,28 @@ func ConfigurarRepositorio(r Repositorio) {
 	repo = r
 }
 
+func RegistrarClick(id string) {
+	repo.RegistrarClick(id)
+}
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 type Url struct {
-	Id      string
-	Criacao time.Time
-	Destino string
+	Id      string    `json:"id"`
+	Criacao time.Time `json:"criacao"`
+	Destino string    `json:"destino"`
+}
+
+func (u *Url) Stats() *Stats {
+	clicks := repo.BuscarClicks(u.Id)
+	return &Stats{u, clicks}
+}
+
+type Stats struct {
+	Url    *Url `json:"url"`
+	Clicks int  `json:"clicks"`
 }
 
 func BuscarOuCriarNovaUrl(destino string) (u *Url, nova bool, err error) {

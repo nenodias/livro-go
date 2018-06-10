@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,9 +12,9 @@ import (
 )
 
 var (
-	porta   int
-	urlBase string
-	stats   chan string
+	porta     *int
+	logLigado *bool
+	urlBase   string
 )
 
 type Redirecionador struct {
@@ -30,23 +31,29 @@ func (red *Redirecionador) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type Headers map[string]string
 
 func logar(formato string, valores ...interface{}) {
-	log.Printf(fmt.Sprintf("%s\n", formato), valores...)
+	if *logLigado {
+		log.Printf(fmt.Sprintf("%s\n", formato), valores...)
+	}
 }
 
 func init() {
-	porta = 8888
-	urlBase = fmt.Sprintf("http://localhost:%d", porta)
+	porta = flag.Int("p", 8888, "porta")
+	logLigado = flag.Bool("l", true, "log ligado/desligado")
+
+	flag.Parse()
+
+	urlBase = fmt.Sprintf("http://localhost:%d", *porta)
 }
 
 func main() {
-	stats = make(chan string)
+	stats := make(chan string)
 	defer close(stats)
 	go registrarEstatisticas(stats)
 	http.HandleFunc("/api/encurtador/", Encurtador)
 	http.HandleFunc("/api/stats/", Visualizador)
 	http.Handle("/r/", &Redirecionador{stats})
-	logar("Iniciando servidor na porta %d...", porta)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", porta), nil))
+	logar("Iniciando servidor na porta %d...", *porta)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *porta), nil))
 }
 
 func responderCom(w http.ResponseWriter, status int, headers Headers) {

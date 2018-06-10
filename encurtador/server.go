@@ -21,14 +21,10 @@ type Redirecionador struct {
 }
 
 func (red *Redirecionador) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	caminho := strings.Split(r.URL.Path, "/")
-	id := caminho[len(caminho)-1]
-	if url := url.Buscar(id); url != nil {
+	buscarUrlEExecutar(w, r, func(url *url.Url) {
 		http.Redirect(w, r, url.Destino, http.StatusMovedPermanently)
-		red.stats <- id
-	} else {
-		http.NotFound(w, r)
-	}
+		red.stats <- url.Id
+	})
 }
 
 type Headers map[string]string
@@ -61,6 +57,17 @@ func responderComJSON(w http.ResponseWriter, resposta string) {
 		"Content-Type": "application/json",
 	})
 	fmt.Fprintf(w, resposta)
+}
+
+func buscarUrlEExecutar(w http.ResponseWriter, r *http.Request, executor func(url *url.Url)) {
+	caminho := strings.Split(r.URL.Path, "/")
+	id := caminho[len(caminho)-1]
+
+	if url := url.Buscar(id); url != nil {
+		executor(url)
+	} else {
+		http.NotFound(w, r)
+	}
 }
 
 func extrairUrl(r *http.Request) string {
@@ -96,10 +103,7 @@ func Encurtador(w http.ResponseWriter, r *http.Request) {
 }
 
 func Visualizador(w http.ResponseWriter, r *http.Request) {
-	caminho := strings.Split(r.URL.Path, "/")
-	id := caminho[len(caminho)-1]
-
-	if url := url.Buscar(id); url != nil {
+	buscarUrlEExecutar(w, r, func(url *url.Url) {
 		json, err := json.Marshal(url.Stats())
 
 		if err != nil {
@@ -108,9 +112,7 @@ func Visualizador(w http.ResponseWriter, r *http.Request) {
 		}
 
 		responderComJSON(w, string(json))
-	} else {
-		http.NotFound(w, r)
-	}
+	})
 }
 
 func registrarEstatisticas(ids <-chan string) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -41,7 +42,7 @@ func GetPokemon(id int) Pokemon {
 }
 
 func main() {
-	pokemons := make(map[int]Pokemon, 150)
+	pokemons := sync.Map{}
 	c := make(chan Pokemon)
 	for i := 1; i <= 150; i++ {
 		go func(n int) {
@@ -52,7 +53,7 @@ func main() {
 	for {
 		select {
 		case p := <-c:
-			pokemons[p.Id] = p
+			pokemons.Store(p.Id, p)
 		case <-time.After(5 * time.Second):
 			done = true
 		}
@@ -61,7 +62,9 @@ func main() {
 		}
 	}
 	for i := 1; i <= 150; i++ {
-		fmt.Println(pokemons[i].Name)
+		p, _ := pokemons.Load(i)
+		pkm := p.(Pokemon)
+		fmt.Println(i, pkm.Name)
 	}
 	fmt.Println("Fim")
 }
